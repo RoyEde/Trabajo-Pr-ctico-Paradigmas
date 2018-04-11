@@ -18,9 +18,9 @@ aumentarBilletera unaCantidad unUsuario = unUsuario {billetera = billetera unUsu
 disminuirBilletera unaCantidad = aumentarBilletera (unaCantidad * (-1))
 subirDeNivel unUsuario = unUsuario {nivel = nivel unUsuario + 1}
 
-pepe = Usuario "Jose"  10 0
-pepe2 = cambiarBilletera 20 pepe 
-lucho = Usuario "Luciano"  2 0
+pepe = Usuario "Jose" 10 0
+pepe2 = Usuario "Jose" 20 0
+lucho = Usuario "Luciano" 2 0
 
 type Evento = Usuario -> Usuario
 deposito :: Int -> Evento
@@ -28,6 +28,8 @@ extraccion :: Int -> Evento
 upgrade :: Evento
 cierreDeCuenta :: Evento
 quedaIgual :: Evento
+tocoYmeVoy :: Evento
+ahorranteErrante :: Evento
 
 deposito unaCantidad  = aumentarBilletera unaCantidad
 extraccion unaCantidad = (min(0) . disminuirBilletera) unaCantidad
@@ -42,15 +44,17 @@ ahorranteErrante = deposito 10.upgrade.deposito 8.extraccion 1.deposito 2.deposi
 type Transaccion = Evento
 transaccion1 :: Transaccion
 transaccion2 :: Transaccion
+transaccion3 :: Transaccion
+transaccion4 :: Transaccion
 
-transaccion1 unUsuario | nombre unUsuario == "lucho" = cierreDeCuenta unUsuario
+transaccion1 unUsuario | nombre unUsuario == "Luciano" = cierreDeCuenta unUsuario
                        | otherwise = quedaIgual unUsuario
 
-transaccion2 unUsuario | nombre unUsuario == "pepe" = deposito 5 unUsuario
+transaccion2 unUsuario | nombre unUsuario == "Jose" = deposito 5 unUsuario
                        | otherwise = quedaIgual unUsuario
 
-transaccion3 unUsuario | unUsuario == lucho = tocoYmeVoy lucho
+transaccion3 unUsuario | nombre unUsuario == "Luciano" = tocoYmeVoy lucho
                        | otherwise = quedaIgual unUsuario
 
-transaccion4 unUsuario | unUsuario == lucho = ahorranteErrante lucho
+transaccion4 unUsuario | nombre unUsuario == "Luciano" = ahorranteErrante lucho
                        | otherwise = quedaIgual unUsuario
