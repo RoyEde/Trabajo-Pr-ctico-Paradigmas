@@ -23,8 +23,8 @@ pepe2 = Usuario "Jose" 20 0 0
 lucho = Usuario "Luciano" 2 0
 
 type Evento = Usuario -> Usuario
--- deposito :: Float -> Evento
--- extraccion :: Float -> Evento
+deposito :: Float -> Evento
+extraccion :: Float -> Evento
 upgrade :: Evento
 cierreDeCuenta :: Evento
 quedaIgual :: Evento
@@ -32,7 +32,7 @@ tocoYmeVoy :: Evento
 ahorranteErrante :: Evento
 
 deposito unaCantidad  = aumentarBilletera unaCantidad
-extraccion unaCantidad unUsuario = disminuirBilletera min unaCantidad (billetera unUsuario) unUsuario
+extraccion unaCantidad unUsuario = disminuirBilletera (min unaCantidad (billetera unUsuario)) unUsuario
 upgrade unUsuario | (billetera unUsuario * 0.2) < 10 = (aumentarBilletera (billetera unUsuario * 0.2) . subirDeNivel) unUsuario
                   | otherwise = (aumentarBilletera 10.subirDeNivel) unUsuario
 cierreDeCuenta = cambiarBilletera 0
@@ -64,7 +64,7 @@ transaccion5 unUsuario | nombre unUsuario == "Jose" = extraccion 7 unUsuario
                        | nombre unUsuario == "Luciano" = deposito 7 unUsuario
                        | otherwise = quedaIgual unUsuario
 {-
-testeo = hspec $ do
+testeo = hspec do $
   describe "Tests de eventos" $ do
     it "depositar 10 en la cuenta de pepe, deberia tener 20 en su billetera" $ (billetera.deposito 10) pepe ´shouldBe´ 20
     it "extraigo 3, billetera debería quedar con 7" $ (billetera.extraccion 3) pepe ´shouldBe´ 7
