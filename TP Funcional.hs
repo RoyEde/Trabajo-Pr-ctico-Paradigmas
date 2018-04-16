@@ -35,9 +35,8 @@ ahorranteErrante :: Evento
 deposito unaCantidad  = aumentarBilletera unaCantidad
 extraccion unaCantidad = disminuirBilletera unaCantidad
 --Saqué el min 0  porque estaba mal aplicado, intenté buscarle la vuelta pero todavia no encuentro la manera de aplicarlo correctamente
-upgrade unUsuario | nivel unUsuario < 10 = (aumentarBilletera (billetera unUsuario * 0.2) . subirDeNivel) unUsuario
-                  | otherwise = quedaIgual unUsuario
---Creo que la lógica de upgrade no está bien pensada
+upgrade unUsuario |(billetera unUsuario * 0.2) < 10 = (aumentarBilletera (billetera unUsuario * 0.2) . subirDeNivel) unUsuario
+                  |otherwise  (aumentarBilletera 10.subirDeNivel) unUsuario
 cierreDeCuenta = cambiarBilletera 0
 quedaIgual = aumentarBilletera 0
 tocoYmeVoy = (cierreDeCuenta.upgrade).deposito 15
