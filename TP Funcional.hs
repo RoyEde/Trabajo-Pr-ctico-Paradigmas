@@ -4,7 +4,6 @@ import Data.List
 import Data.Maybe
 import Test.Hspec
 
-
 data Usuario = Usuario {
   nombre::String,
   billetera::Float,
@@ -16,7 +15,7 @@ data Usuario = Usuario {
 cambiarNombre nuevoNombre unUsuario = unUsuario {nombre = nuevoNombre}
 cambiarBilletera nuevaBilletera unUsuario = unUsuario {billetera = nuevaBilletera}
 aumentarBilletera unaCantidad unUsuario = unUsuario {billetera = billetera unUsuario + unaCantidad}
-disminuirBilletera unaCantidad = aumentarBilletera (unaCantidad * (-1))
+disminuirBilletera unaCantidad unUsuario = aumentarBilletera (unaCantidad * (-1)) unUsuario
 subirDeNivel unUsuario = unUsuario {nivel = nivel unUsuario + 1}
 
 pepe = Usuario "Jose" 10 0 0
@@ -24,8 +23,8 @@ pepe2 = Usuario "Jose" 20 0 0
 lucho = Usuario "Luciano" 2 0
 
 type Evento = Usuario -> Usuario
-deposito :: Float -> Evento
-extraccion :: Float -> Evento
+-- deposito :: Float -> Evento
+-- extraccion :: Float -> Evento
 upgrade :: Evento
 cierreDeCuenta :: Evento
 quedaIgual :: Evento
@@ -33,10 +32,9 @@ tocoYmeVoy :: Evento
 ahorranteErrante :: Evento
 
 deposito unaCantidad  = aumentarBilletera unaCantidad
-extraccion unaCantidad = disminuirBilletera unaCantidad
---Saqué el min 0  porque estaba mal aplicado, intenté buscarle la vuelta pero todavia no encuentro la manera de aplicarlo correctamente
-upgrade unUsuario |(billetera unUsuario * 0.2) < 10 = (aumentarBilletera (billetera unUsuario * 0.2) . subirDeNivel) unUsuario
-                  |otherwise  (aumentarBilletera 10.subirDeNivel) unUsuario
+extraccion unaCantidad unUsuario = disminuirBilletera min unaCantidad (billetera unUsuario) unUsuario
+upgrade unUsuario | (billetera unUsuario * 0.2) < 10 = (aumentarBilletera (billetera unUsuario * 0.2) . subirDeNivel) unUsuario
+                  | otherwise = (aumentarBilletera 10.subirDeNivel) unUsuario
 cierreDeCuenta = cambiarBilletera 0
 quedaIgual = aumentarBilletera 0
 tocoYmeVoy = (cierreDeCuenta.upgrade).deposito 15
