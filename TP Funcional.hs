@@ -20,7 +20,7 @@ subirDeNivel unUsuario = unUsuario {nivel = nivel unUsuario + 1}
 
 pepe = Usuario "Jose" 10 0 0
 pepe2 = Usuario "Jose" 20 0 0
-lucho = Usuario "Luciano" 2 0
+lucho = Usuario "Luciano" 2 0 0
 
 type Evento = Usuario -> Usuario
 deposito :: Float -> Evento
@@ -72,7 +72,7 @@ testeo = hspec $ do
     it "hago un upgrade, billetera deberia quedar con 12" $ (billetera.upgrade) pepe `shouldBe` 12
     it "cierro la cuenta, billetera deberia quedar en 0" $ (billetera.cierreDeCuenta) pepe `shouldBe` 0
     it "hago un quedaIgual, billetera deberia quedar en 10" $ (billetera.quedaIgual) pepe `shouldBe` 10
-    it "deposito y hago un upgrade, billetera deberia quedar en 1020" $ (billetera.upgrade.deposito 10) pepe `shouldBe` 1020
+    it "deposito y hago un upgrade, billetera deberia quedar en 1020" $ (billetera.upgrade.deposito 1000) pepe `shouldBe` 1020
   describe "Tests de usuarios" $ do
     it "billetera pepe, deberia ser 10" $ billetera pepe `shouldBe` 10
     it "billetera pepe luego de cierre de cuenta, deberia ser 0" $ (billetera.cierreDeCuenta) pepe `shouldBe` 0
@@ -80,10 +80,11 @@ testeo = hspec $ do
   describe "Tests de transacciones" $ do
     it "transaccion 1 sobre pepe me debería devolver una billetera de 10" $ (billetera.transaccion1) pepe `shouldBe` 10
     it "transaccion 2 sobre pepe me deberiía devolver una billetera de 15" $ (billetera.transaccion2) pepe `shouldBe` 15
-    it "transaccion 2 sobre pepe2 me debería devolver billetera de 55" $ (billetera.transaccion2) pepe2 `shouldBe` 55
+    it "transaccion 2 sobre pepe2 me debería devolver billetera de 25" $ (billetera.transaccion2) pepe2 `shouldBe` 25
+    it "transaccion 2 sobre pepe2 cuando tiene 50 monedas me debería devolver billetera de 55" $ (billetera.transaccion2.cambiarBilletera 50) pepe2 `shouldBe` 55
   describe "Tests de nuevos eventos" $ do
---    it 14
---    it 15
+   it "transaccion 3 sobre lucho cuando tiene 10 monedas me debería devolver una billetera de 0" $ (billetera.transaccion3.cambiarBilletera 10) lucho `shouldBe` 0
+   it "transaccion 4 sobre lucho cuando tiene 10 monedas me debería devolver una billetera de 34" $ (billetera.transaccion4.cambiarBilletera 10) lucho `shouldBe` 34
   describe "Tests de pagos entre usuarios" $ do
     it "transaccion 5 sobre pepe me debería devolver una billetera de 3" $ (billetera.transaccion5) pepe `shouldBe` 3
-    it "transaccion 5 sobre lucho me debería devolver una billetera de 17" $ (billetera.transaccion5) lucho `shouldBe` 17
+    it "transaccion 5 sobre lucho cuando tiene 10 monedas me debería devolver una billetera de 17" $ (billetera.transaccion5.cambiarBilletera 10) lucho `shouldBe` 17
