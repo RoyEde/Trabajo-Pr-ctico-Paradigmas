@@ -11,16 +11,11 @@ data Usuario = Usuario {
   cantidadDeTransacciones::Int
 } deriving(Show, Eq)
 
-
 cambiarNombre nuevoNombre unUsuario = unUsuario {nombre = nuevoNombre}
 cambiarBilletera nuevaBilletera unUsuario = unUsuario {billetera = nuevaBilletera}
 aumentarBilletera unaCantidad unUsuario = unUsuario {billetera = billetera unUsuario + unaCantidad}
 disminuirBilletera unaCantidad unUsuario = aumentarBilletera (unaCantidad * (-1)) unUsuario
 subirDeNivel unUsuario = unUsuario {nivel = nivel unUsuario + 1}
-
-pepe = Usuario "Jose" 10 0 0
-pepe2 = Usuario "Jose" 20 0 0
-lucho = Usuario "Luciano" 2 0 0
 
 type Evento = Usuario -> Usuario
 deposito :: Float -> Evento
@@ -33,13 +28,31 @@ ahorranteErrante :: Evento
 
 deposito unaCantidad  = aumentarBilletera unaCantidad
 extraccion unaCantidad unUsuario = disminuirBilletera (min unaCantidad (billetera unUsuario)) unUsuario
-upgrade unUsuario | (billetera unUsuario * 0.2) < 10 = (aumentarBilletera (billetera unUsuario * 0.2) . subirDeNivel) unUsuario
-                  | otherwise = (aumentarBilletera 10.subirDeNivel) unUsuario
+upgrade unUsuario = aumentarBilletera (min 10 (billetera unUsuario * 0.2))
 cierreDeCuenta = cambiarBilletera 0
-quedaIgual = aumentarBilletera 0
+quedaIgual = id
 tocoYmeVoy = (cierreDeCuenta.upgrade).deposito 15
 ahorranteErrante = deposito 10.upgrade.deposito 8.extraccion 1.deposito 2.deposito 1
 
+testeoDeEventos = hspec $ do
+  describe "Tests de eventos" $ do
+    it "depositar 10 en una billetera , deberia tener 20 en su billetera" $ (billetera.deposito 10) pepe `shouldBe` 20
+    it "extraigo 3 de una billetera , debería quedar con 7" $ (billetera.extraccion 3) pepe `shouldBe` 7
+    it "extraigo 15 de una billetera , deberia quedar con 0" $ (billetera.extraccion 15) pepe `shouldBe` 0
+    it "hago un upgrade de una billetera , deberia quedar con 12" $ (billetera.upgrade) pepe `shouldBe` 12
+    it "cierro la cuenta, billetera deberia quedar en 0" $ (billetera.cierreDeCuenta) pepe `shouldBe` 0
+    it "hago un quedaIgual, billetera deberia quedar en 10" $ (billetera.quedaIgual) pepe `shouldBe` 10
+    it "deposito y hago un upgrade, billetera deberia quedar en 1020" $ (billetera.upgrade.deposito 1000) pepe `shouldBe` 1020
+
+pepe = Usuario "Jose" 10 0 0
+pepe2 = Usuario "Jose" 20 0 0
+lucho = Usuario "Luciano" 2 0 0
+
+testeoDeUsuarios = hspec $ do
+  describe "Tests de usuarios" $ do
+    it "billetera pepe, deberia ser 10" $ billetera pepe `shouldBe` 10
+    it "billetera pepe luego de cierre de cuenta, deberia ser 0" $ (billetera.cierreDeCuenta) pepe `shouldBe` 0
+    it "billetera de pepe luego de depositar 15, extraer 2 y tener un upgrade deberia ser 27.6" $ (billetera.upgrade.extraccion 2.deposito 15) pepe `shouldBe` 27.6
 
 type Transaccion = Evento
 transaccion1 :: Transaccion
@@ -64,19 +77,6 @@ transaccion5 unUsuario | nombre unUsuario == "Jose" = extraccion 7 unUsuario
                        | nombre unUsuario == "Luciano" = deposito 7 unUsuario
                        | otherwise = quedaIgual unUsuario
 
-testeo = hspec $ do
-  describe "Tests de eventos" $ do
-    it "depositar 10 en la cuenta de pepe, deberia tener 20 en su billetera" $ (billetera.deposito 10) pepe `shouldBe` 20
-    it "extraigo 3, billetera debería quedar con 7" $ (billetera.extraccion 3) pepe `shouldBe` 7
-    it "extraigo 15, billetera deberia quedar con 0" $ (billetera.extraccion 15) pepe `shouldBe` 0
-    it "hago un upgrade, billetera deberia quedar con 12" $ (billetera.upgrade) pepe `shouldBe` 12
-    it "cierro la cuenta, billetera deberia quedar en 0" $ (billetera.cierreDeCuenta) pepe `shouldBe` 0
-    it "hago un quedaIgual, billetera deberia quedar en 10" $ (billetera.quedaIgual) pepe `shouldBe` 10
-    it "deposito y hago un upgrade, billetera deberia quedar en 1020" $ (billetera.upgrade.deposito 1000) pepe `shouldBe` 1020
-  describe "Tests de usuarios" $ do
-    it "billetera pepe, deberia ser 10" $ billetera pepe `shouldBe` 10
-    it "billetera pepe luego de cierre de cuenta, deberia ser 0" $ (billetera.cierreDeCuenta) pepe `shouldBe` 0
-    it "billetera de pepe luego de depositar 15, extraer 2 y tener un upgrade deberia ser 27.6" $ (billetera.upgrade.extraccion 2.deposito 15) pepe `shouldBe` 27.6
   describe "Tests de transacciones" $ do
     it "transaccion 1 sobre pepe me debería devolver una billetera de 10" $ (billetera.transaccion1) pepe `shouldBe` 10
     it "transaccion 2 sobre pepe me deberiía devolver una billetera de 15" $ (billetera.transaccion2) pepe `shouldBe` 15
