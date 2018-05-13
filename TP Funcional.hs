@@ -8,11 +8,15 @@ data Billetera = Billetera {
   dinero :: Float
 } deriving(Show, Eq)
 
+cambiarBilletera :: Float -> Billetera -> Billetera
 aumentarBilletera :: Float -> Billetera -> Billetera
+disminuirBilletera :: Float -> Billetera -> Billetera
 
 cambiarBilletera nuevaBilletera unaBilletera = unaBilletera {dinero = nuevaBilletera}
 aumentarBilletera unaCantidad unaBilletera = unaBilletera {dinero = dinero unaBilletera + unaCantidad}
 disminuirBilletera unaCantidad unaBilletera = aumentarBilletera (unaCantidad * (-1)) unaBilletera
+
+cambiarNombre :: String -> Usuario -> Usuario
 
 cambiarNombre nuevoNombre unUsuario = unUsuario {nombre = nuevoNombre}
 
@@ -36,7 +40,7 @@ ahorranteErrante = deposito 10.upgrade.deposito 8.extraccion 1.deposito 2.deposi
 data Usuario = Usuario {
   nombre::String,
   billetera::Billetera
-  } deriving(Show, Eq)
+  } deriving (Show, Eq)
 
 billeteraTest = Billetera 10
 billeteraTest2 = Billetera 20
@@ -85,17 +89,17 @@ transaccion5 unUsuario | nombre unUsuario == "Jose" = extraccion 7
                        | nombre unUsuario == "Luciano" = deposito 7
                        | otherwise = quedaIgual
 
-{-testeoDeTransacciones = hspec $ do
+testeoDeTransacciones = hspec $ do
   describe "Tests de transacciones" $ do
-    it "transaccion 1 sobre pepe a una billetera de 20 monedas me debería devolver una billetera de 20" $ (dinero.billeteraTest2.transaccion1) pepe `shouldBe` 10
-    it "transaccion 2 sobre pepe a una billetera de 10 monedas me deberiía devolver una billetera de 15" $ (dinero.billeteraTest.transaccion2) pepe `shouldBe` 15
-    it "transaccion 2 sobre pepe2 a una billetera de 50 monedas me debería devolver billetera de 55" $ (dinero.billeteraTest3.transaccion2) pepe2 `shouldBe` 55
+    it "transaccion 1 sobre pepe a una billetera de 20 monedas me debería devolver una billetera de 20" $ dinero (transaccion1 pepe billeteraTest2) `shouldBe` 20
+    it "transaccion 2 sobre pepe a una billetera de 10 monedas me deberiía devolver una billetera de 15" $ dinero (transaccion2 pepe billeteraTest) `shouldBe` 15
+    it "transaccion 2 sobre pepe2 a una billetera de 50 monedas me debería devolver billetera de 55" $ dinero (transaccion2 pepe2 billeteraTest3) `shouldBe` 55
   describe "Tests de nuevos eventos" $ do
-   it "transaccion 3 sobre lucho a una billetera de 10 monedas me debería devolver una billetera de 0" $ (dinero.billeteraTest.transaccion3) lucho `shouldBe` 0
-   it "transaccion 4 sobre lucho a una billetera de 10 monedas me debería devolver una billetera de 34" $ (dinero.billeteraTest.transaccion4) lucho `shouldBe` 34
+   it "transaccion 3 sobre lucho a una billetera de 10 monedas me debería devolver una billetera de 0" $ dinero (transaccion3 lucho billeteraTest) `shouldBe` 0
+   it "transaccion 4 sobre lucho a una billetera de 10 monedas me debería devolver una billetera de 34" $ dinero (transaccion4 lucho billeteraTest) `shouldBe` 34
   describe "Tests de pagos entre usuarios" $ do
-    it "transaccion 5 sobre pepe  a una billetera de 10 monedas me debería devolver una billetera de 3" $ (dinero.billeteraTest.transaccion5) pepe `shouldBe` 3
-    it "transaccion 5 sobre lucho  a una billetera de 10 monedas me debería devolver una billetera de 17" $ (dinero.billeteraTest.transaccion5.cambiarBilletera 10) lucho `shouldBe` 17-}
+    it "transaccion 5 sobre pepe  a una billetera de 10 monedas me debería devolver una billetera de 3" $ dinero (transaccion5 pepe billeteraTest) `shouldBe` 3
+    it "transaccion 5 sobre lucho  a una billetera de 10 monedas me debería devolver una billetera de 17" $ dinero (transaccion5 lucho billeteraTest) `shouldBe` 17
 
 {-testeoLuegoDeTransaccion = hspec $ do
   describe "Testeos sobre usuarios luego de transacciones" $ do
@@ -103,7 +107,7 @@ transaccion5 unUsuario | nombre unUsuario == "Jose" = extraccion 7
     it "Aplicar transaccion 5 a lucho deberia devolverlo con una billetera de 9" $
     it "Aplicar la transaccion 5 y la 2 a pepe deberia devolverlo con una billetera de 8" $-}
 
-bloque1 = (transaccion1.transaccion2.transaccion2.transaccion2.transaccion3.transaccion4.transaccion5.transaccion3)
+--bloque1 = (transaccion1.transaccion2.transaccion2.transaccion2.transaccion3.transaccion4.transaccion5.transaccion3)
 
 {-testeoDeBloque1 = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el bloque1" $ do
@@ -111,13 +115,13 @@ bloque1 = (transaccion1.transaccion2.transaccion2.transaccion2.transaccion3.tran
     it "Si aplico el bloque 1 a pepe y a lucho el unico que queda con una billetera >10 es pepe" $
     it "El mas adinerado luego de aplicar el bloque 1 deberia ser pepe" $
     it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $-}
-
+{-
 bloque2 = (transaccion2.transaccion2.transaccion2.transaccion2.transaccion2)
 
 blockChain :: Usuario -> Usuario
 
 blockChain = bloque2 . (take 10. repeat) bloque1
-
+-}
 {-testeoDeBlockChain = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar blockChain" $ do
     it "El peor bloque para pepe es el bloque 1" $
@@ -125,7 +129,7 @@ blockChain = bloque2 . (take 10. repeat) bloque1
     it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $
     it "Si aplico blockChain a lucho y a pepe la suma de sus billeteras nos deberia dar 115" $-}
 
-blockChainInfinito = iterate bloque1
+--blockChainInfinito = iterate bloque1
 
 {-testeoDeBlockChainInfinito = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
