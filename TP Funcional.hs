@@ -141,3 +141,5 @@ usuarioLuegoDeTransaccion unUsuario unaTransaccion = actualizarBilletera unUsuar
 actualizarBilletera unUsuario nuevaBilletera = unUsuario {billetera = nuevaBilletera}
 
 unBloque unUsuario transacciones = foldl (\unUsuario transaccion -> usuarioLuegoDeTransaccion unUsuario transaccion) unUsuario transacciones
+
+blockChain unUsuario unBlockChain = foldl (\unUsuario bloque -> unBloque unUsuario bloque ) unUsuario unBlockChain
