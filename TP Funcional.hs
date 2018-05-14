@@ -102,7 +102,7 @@ testeoDeTransacciones = hspec $ do
     it "transaccion 5 sobre lucho  a una billetera de 10 monedas me debería devolver una billetera de 17" $ dinero (transaccion5 lucho billeteraTest) `shouldBe` 17
 
 
-usuarioLuegoDeTransaccion unUsuario unaTransaccion = actualizarBilletera unUsuario (($) unaTransaccion unUsuario (billetera unUsuario))
+usuarioLuegoDeTransaccion unUsuario unaTransaccion = actualizarBilletera unUsuario (unaTransaccion unUsuario (billetera unUsuario))
 
 actualizarBilletera unUsuario nuevaBilletera = unUsuario {billetera = nuevaBilletera}
 
@@ -110,7 +110,7 @@ testeoLuegoDeTransaccion = hspec $ do
   describe "Testeos sobre usuarios luego de transacciones" $ do
     it "Aplicar transaccion 1 a pepe deberia dejarlo igual" $ (dinero.billetera.usuarioLuegoDeTransaccion pepe) transaccion1  `shouldBe` 10
     it "Aplicar transaccion 5 a lucho deberia devolverlo con una billetera de 9" $ (dinero.billetera.usuarioLuegoDeTransaccion lucho) transaccion5 `shouldBe` 9
-    --it "Aplicar la transaccion 5 y la 2 a pepe deberia devolverlo con una billetera de 8" $ (dinero.billetera.usuarioLuegoDeTransaccion transaccion2). usuarioLuegoDeTransaccion pepe transaccion5 `shouldBe` 8
+    it "Aplicar la transaccion 5 y la 2 a pepe deberia devolverlo con una billetera de 8" $ (dinero.billetera.usuarioLuegoDeTransaccion (usuarioLuegoDeTransaccion pepe transaccion5)) transaccion2 `shouldBe` 8
 
 unBloque unUsuario transacciones = foldl (\unUsuario transaccion -> usuarioLuegoDeTransaccion unUsuario transaccion) unUsuario transacciones
 
@@ -119,19 +119,19 @@ bloque1 = [transaccion1, transaccion2, transaccion2, transaccion2, transaccion3,
 testeoDeBloque1 = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el bloque1" $ do
     it "Aplicar bloque 1 a pepe nos devuelve un pepe con una billetera de 18" $ (dinero.billetera.unBloque pepe) bloque1 `shouldBe` 18
-    --it "Si aplico el bloque 1 a pepe y a lucho el unico que queda con una billetera >10 es pepe" $
-    --it "El mas adinerado luego de aplicar el bloque 1 deberia ser pepe" $
-    --it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $-}
+    it "Si aplico el bloque 1 a pepe y a lucho el unico que queda con una billetera >10 es pepe" $ (dinero.billetera.unBloque pepe) bloque1 > 10 && (dinero.billetera.unBloque lucho) bloque1 < 10 `shouldBe` True
+    it "El mas adinerado luego de aplicar el bloque 1 deberia ser pepe" $ (dinero.billetera.unBloque pepe) bloque1 > (dinero.billetera.unBloque lucho) bloque1 `shouldBe` True
+    it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $ (dinero.billetera.unBloque lucho) < (dinero.billetera.unBloque pepe) bloque1 `shouldBe` True
 
 bloque2 = [transaccion2, transaccion2, transaccion2, transaccion2, transaccion2]
 
 blockChain = bloque2 ++ (take 10. cycle) bloque1
 
-{-testeoDeBlockChain = hspec $ do
+testeoDeBlockChain = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar blockChain" $ do
-    it "El peor bloque para pepe es el bloque 1" $
-    it "blockChain aplicada a pepe nos devuelve a pepe con una billetera de 115" $
-    it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $
+    it "El peor bloque para pepe es el bloque 1" $ (dinero.billetera.unBloque pepe) bloque1 < (dinero.billetera.unBloque pepe) bloque2 `shouldBe` True
+    --it "blockChain aplicada a pepe nos devuelve a pepe con una billetera de 115" $
+    {-it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $
     it "Si aplico blockChain a lucho y a pepe la suma de sus billeteras nos deberia dar 115" $-}
 
 blockChainInfinito = cycle bloque1
@@ -143,6 +143,6 @@ blockChainInfinito = cycle bloque1
 aplicarBlockChain unUsuario unBlockChain = foldl (\unUsuario bloque -> unBloque unUsuario bloque ) unUsuario unBlockChain
 
 aplicarBlockChainInfinito unUsuario unBloque unaCantidad |dinero(billetera(aplicarBlockChain unUsuario unBloque)) >= unaCantidad = length unBloque
-                                                |otherwise = aplicarBlockChainInfinito unUsuario (iterarBloque unBloque) unaCantidad
+                                                         |otherwise = aplicarBlockChainInfinito unUsuario (iterarBloque unBloque) unaCantidad
 
 iterarBloque unBloque = unBloque ++ [concat (replicate 2 (last unBloque))]
