@@ -135,7 +135,8 @@ blockChain = bloque2 . (take 10. repeat) bloque1
   describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
     it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $-}
     
-   
+-- Bloque1 => [transaccion1, transaccion2, transaccion2, transaccion2, transaccion3, transaccion4, transaccion5, transaccion3]
+-- Bloque2 => [transaccion2, transaccion2, transaccion2, transaccion2, transaccion2]
 usuarioLuegoDeTransaccion unUsuario unaTransaccion = actualizarBilletera unUsuario (($) unaTransaccion unUsuario (billetera unUsuario))
 
 actualizarBilletera unUsuario nuevaBilletera = unUsuario {billetera = nuevaBilletera}
@@ -143,3 +144,9 @@ actualizarBilletera unUsuario nuevaBilletera = unUsuario {billetera = nuevaBille
 unBloque unUsuario transacciones = foldl (\unUsuario transaccion -> usuarioLuegoDeTransaccion unUsuario transaccion) unUsuario transacciones
 
 blockChain unUsuario unBlockChain = foldl (\unUsuario bloque -> unBloque unUsuario bloque ) unUsuario unBlockChain
+
+blockChainInfinito unUsuario bloque unaCantidad 
+                                                |dinero(billetera(blockChain unUsuario bloque)) >= unaCantidad = length bloque
+												|otherwise = blockChainInfinito unUsuario (iterarBloque bloque) unaCantidad
+
+iterarBloque unBloque = unBloque ++ unBloque
