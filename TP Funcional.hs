@@ -149,4 +149,4 @@ blockChainInfinito unUsuario bloque unaCantidad
                                                 |dinero(billetera(blockChain unUsuario bloque)) >= unaCantidad = length bloque
 												|otherwise = blockChainInfinito unUsuario (iterarBloque bloque) unaCantidad
 
-iterarBloque unBloque = unBloque ++ [concat (replicate 2 (concat unBloque))]
+iterarBloque unBloque = unBloque ++ [concat (replicate 2 (last unBloque))]
