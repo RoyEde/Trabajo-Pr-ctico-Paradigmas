@@ -124,9 +124,9 @@ testeoDeBloque1 = hspec $ do
     --it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $-}
 
 bloque2 = [transaccion2, transaccion2, transaccion2, transaccion2, transaccion2]
-{-
-blockChain = bloque2 . (take 10. repeat) bloque1
--}
+
+blockChain = bloque2 ++ (take 10. cycle) bloque1
+
 {-testeoDeBlockChain = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar blockChain" $ do
     it "El peor bloque para pepe es el bloque 1" $
@@ -134,18 +134,15 @@ blockChain = bloque2 . (take 10. repeat) bloque1
     it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $
     it "Si aplico blockChain a lucho y a pepe la suma de sus billeteras nos deberia dar 115" $-}
 
---blockChainInfinito = iterate bloque1
+blockChainInfinito = cycle bloque1
 
 {-testeoDeBlockChainInfinito = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
     it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $-}
 
+aplicarBlockChain unUsuario unBlockChain = foldl (\unUsuario bloque -> unBloque unUsuario bloque ) unUsuario unBlockChain
 
-
-
-blockChain unUsuario unBlockChain = foldl (\unUsuario bloque -> unBloque unUsuario bloque ) unUsuario unBlockChain
-
-blockChainInfinito unUsuario bloque unaCantidad |dinero(billetera(blockChain unUsuario bloque)) >= unaCantidad = length bloque
-                                                |otherwise = blockChainInfinito unUsuario (iterarBloque bloque) unaCantidad
+aplicarBlockChainInfinito unUsuario unBloque unaCantidad |dinero(billetera(aplicarBlockChain unUsuario unBloque)) >= unaCantidad = length unBloque
+                                                |otherwise = aplicarBlockChainInfinito unUsuario (iterarBloque unBloque) unaCantidad
 
 iterarBloque unBloque = unBloque ++ [concat (replicate 2 (last unBloque))]
