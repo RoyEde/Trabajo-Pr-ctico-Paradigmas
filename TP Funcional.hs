@@ -134,3 +134,6 @@ blockChain = bloque2 . (take 10. repeat) bloque1
 {-testeoDeBlockChainInfinito = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
     it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $-}
+    
+   
+ usuarioLuegoDeTransaccion unUsuario unaTransaccion = ($) unaTransaccion unUsuario
