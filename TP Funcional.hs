@@ -139,3 +139,5 @@ blockChain = bloque2 . (take 10. repeat) bloque1
 usuarioLuegoDeTransaccion unUsuario unaTransaccion = actualizarBilletera unUsuario (($) unaTransaccion unUsuario (billetera unUsuario))
 
 actualizarBilletera unUsuario nuevaBilletera = unUsuario {billetera = nuevaBilletera}
+
+unBloque unUsuario transacciones = foldl (\unUsuario transaccion -> usuarioLuegoDeTransaccion unUsuario transaccion) unUsuario transacciones
