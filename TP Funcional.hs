@@ -122,9 +122,9 @@ testeoLuegoDeTransaccion = hspec $ do
 
 unBloque unUsuario transacciones = foldl (\unUsuario transaccion -> usuarioLuegoDeTransaccion unUsuario transaccion) unUsuario transacciones
 
-type Bloque :: [Transaccion]
+type Bloque = [Transaccion]
 bloque1 :: Bloque
-bloque2 :: Bloque 
+bloque2 :: Bloque
 
 bloque1 = [transaccion1, transaccion2, transaccion2, transaccion2, transaccion3, transaccion4, transaccion5, transaccion3]
 
