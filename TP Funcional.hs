@@ -158,10 +158,15 @@ blockChainInfinito = cycle bloque1
 
 {-testeoDeBlockChainInfinito = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
-    --it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $ aplicarBlockChainInfinito pepe blockChainInfinito 10000 `shouldBe` 11
+    it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $ aplicarBlockChainInfinito pepe blockChainInfinito 10000 `shouldBe` 11
 
+<<<<<<< Updated upstream
 aplicarBlockChainInfinito unUsuario unBloque unaCantidad | dinero(billetera(aplicarBlockChain unUsuario unBloque)) >= unaCantidad = length unBloque
                                                          | otherwise = aplicarBlockChainInfinito unUsuario (iterarBloque unBloque) unaCantidad
+=======
+aplicarBlockChainInfinito unUsuario unBloque unaCantidad |dinero(billetera(muchosBloques unUsuario unBloque)) >= unaCantidad = length unBloque
+                                                         |otherwise = aplicarBlockChainInfinito unUsuario (iterarBloque unBloque) unaCantidad
+>>>>>>> Stashed changes
 
 iterarBloque unBloque = unBloque ++ [concat (replicate 2 (last unBloque))]
 
