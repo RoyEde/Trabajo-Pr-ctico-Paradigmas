@@ -116,7 +116,7 @@ actualizarBilletera unUsuario nuevaBilletera = unUsuario {billetera = nuevaBille
 
 testeoLuegoDeTransaccion = hspec $ do
   describe "Testeos sobre usuarios luego de transacciones" $ do
-  {-18-} it "Aplicar transaccion 1 a pepe deberia dejarlo igual" $ usuarioLuegoDeTransaccion pepe transaccion1  `shouldBe` actualizarBilletera pepe (Billetera 8)
+  {-18-} it "Aplicar transaccion 1 a pepe deberia dejarlo igual" $ usuarioLuegoDeTransaccion pepe transaccion1 `shouldBe` pepe
   {-19-} it "Aplicar transaccion 5 a lucho deberia devolverlo con una billetera de 9" $ usuarioLuegoDeTransaccion lucho transaccion5 `shouldBe` actualizarBilletera lucho (Billetera 9)
   {-20-} it "Aplicar la transaccion 5 y la 2 a pepe deberia devolverlo con una billetera de 8" $ usuarioLuegoDeTransaccion (usuarioLuegoDeTransaccion pepe transaccion5) transaccion2 `shouldBe` actualizarBilletera pepe (Billetera 8)
 
@@ -147,7 +147,7 @@ muchosBloques unUsuario bloques = foldr (\bloque unUsuario  -> unBloque unUsuari
 buscarHistorial numeroBloque unUsuario | numeroBloque < length blockChain = muchosBloques unUsuario (take numeroBloque blockChain)
                                        | otherwise = muchosBloques unUsuario blockChain
 
-peorBloque unUsuario bloque otroBloque | (dinero.billetera.unBloque unUsuario) bloque > (dinero.billetera.unBloque unUsuario) otroBloque = bloque
+peorBloque unUsuario bloque otroBloque | (dinero.billetera.unBloque unUsuario) bloque < (dinero.billetera.unBloque unUsuario) otroBloque = bloque
                                        | otherwise = otroBloque
 
 testeoDeBlockChain = hspec $ do
@@ -159,7 +159,7 @@ testeoDeBlockChain = hspec $ do
 
 testeoDeBlockChainInfinito = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
-    it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $ aplicarBlockChainInfinito pepe [bloque1] 10000 `shouldBe` 11
+    {-29-} it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $ aplicarBlockChainInfinito pepe [bloque1] 10000 `shouldBe` 11
 
 aplicarBlockChainInfinito unUsuario unBloque unaCantidad | dinero(billetera(muchosBloques unUsuario unBloque)) >= unaCantidad = length unBloque
                                                          | otherwise = aplicarBlockChainInfinito unUsuario (iterarBloque unBloque) unaCantidad
