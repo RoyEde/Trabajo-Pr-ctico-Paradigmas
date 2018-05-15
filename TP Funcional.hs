@@ -13,7 +13,7 @@ aumentarBilletera :: Float -> Billetera -> Billetera
 disminuirBilletera :: Float -> Billetera -> Billetera
 
 cambiarBilletera nuevaBilletera unaBilletera = unaBilletera {dinero = nuevaBilletera}
-aumentarBilletera unaCantidad unaBilletera = cambiarBilletera (dinero unaBilletera) + unaCantidad unaBilletera
+aumentarBilletera unaCantidad unaBilletera = cambiarBilletera ((dinero unaBilletera) + unaCantidad) unaBilletera
 disminuirBilletera unaCantidad unaBilletera = aumentarBilletera (unaCantidad * (-1)) unaBilletera
 
 -- Eventos
