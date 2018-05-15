@@ -120,13 +120,14 @@ testeoLuegoDeTransaccion = hspec $ do
   {-19-} it "Aplicar transaccion 5 a lucho deberia devolverlo con una billetera de 9" $ usuarioLuegoDeTransaccion lucho transaccion5 `shouldBe` actualizarBilletera lucho (Billetera 9)
   {-20-} it "Aplicar la transaccion 5 y la 2 a pepe deberia devolverlo con una billetera de 8" $ usuarioLuegoDeTransaccion (usuarioLuegoDeTransaccion pepe transaccion5) transaccion2 `shouldBe` actualizarBilletera pepe (Billetera 8)
 
-unBloque unUsuario transacciones = foldl (\unUsuario transaccion -> usuarioLuegoDeTransaccion unUsuario transaccion) unUsuario transacciones
 
 type Bloque = [Transaccion]
+
 bloque1 :: Bloque
-bloque2 :: Bloque
 
 bloque1 = [transaccion1, transaccion2, transaccion2, transaccion2, transaccion3, transaccion4, transaccion5, transaccion3]
+
+unBloque unUsuario transacciones = foldl (\unUsuario transaccion -> usuarioLuegoDeTransaccion unUsuario transaccion) unUsuario transacciones
 
 testeoDeBloque1 = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el bloque1" $ do
@@ -135,17 +136,22 @@ testeoDeBloque1 = hspec $ do
   {-23-} it "El mas adinerado luego de aplicar el bloque 1 deberia ser pepe" $ (dinero.billetera.unBloque pepe) bloque1 > (dinero.billetera.unBloque lucho) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
   {-24-} it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $ (dinero.billetera.unBloque lucho) bloque1 < (dinero.billetera.unBloque pepe) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
 
+bloque2 :: Bloque
+
 bloque2 = take 5 (repeat transaccion2)
 
-blockChain = bloque2 ++ concat (take 10 (repeat bloque1))
+blockChain = bloque2 : take 10 (repeat bloque1)
+
+muchosBloques unUsuario bloques = foldl (\unUsuario bloque -> unBloque pepe bloque) unUsuario bloques 
 
 testeoDeBlockChain = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar blockChain" $ do
     it "El peor bloque para pepe es el bloque 1" $ (dinero.billetera.unBloque pepe) bloque1 < (dinero.billetera.unBloque pepe) bloque2 `shouldBe` True
     it "blockChain aplicada a pepe nos devuelve a pepe con una billetera de 115" $ unBloque pepe blockChain `shouldBe` Usuario "Jose" (Billetera 115)
+    {-
     -- it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $ unBloque pepe (take 3 blockChain) `shouldBe` Usuario "Jose" (Billetera 51)
     it "Si aplico blockChain a lucho y a pepe la suma de sus billeteras nos deberia dar 115" $ (dinero.billetera.unBloque pepe) blockChain + (dinero.billetera.unBloque lucho) blockChain  `shouldBe` 115
-
+-}
 blockChainInfinito = cycle bloque1
 
 {-testeoDeBlockChainInfinito = hspec $ do
