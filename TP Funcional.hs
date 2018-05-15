@@ -120,7 +120,6 @@ testeoLuegoDeTransaccion = hspec $ do
   {-19-} it "Aplicar transaccion 5 a lucho deberia devolverlo con una billetera de 9" $ usuarioLuegoDeTransaccion lucho transaccion5 `shouldBe` actualizarBilletera lucho (Billetera 9)
   {-20-} it "Aplicar la transaccion 5 y la 2 a pepe deberia devolverlo con una billetera de 8" $ usuarioLuegoDeTransaccion (usuarioLuegoDeTransaccion pepe transaccion5) transaccion2 `shouldBe` actualizarBilletera pepe (Billetera 8)
 
-
 type Bloque = [Transaccion]
 
 bloque1 :: Bloque
@@ -150,6 +149,8 @@ buscarHistorial numeroBloque unUsuario | numeroBloque < length blockChain = much
 peorBloque unUsuario bloque otroBloque | (dinero.billetera.unBloque unUsuario) bloque < (dinero.billetera.unBloque unUsuario) otroBloque = bloque
                                        | otherwise = otroBloque
 
+-- Blockchain
+
 testeoDeBlockChain = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar blockChain" $ do
     {-25-} it "El peor bloque para pepe es el bloque 1" $ unBloque pepe (peorBloque pepe bloque1 bloque2) `shouldBe` actualizarBilletera pepe (Billetera 18)
@@ -165,3 +166,12 @@ aplicarBlockChainInfinito unUsuario unBloque unaCantidad | dinero(billetera(much
                                                          | otherwise = aplicarBlockChainInfinito unUsuario (iterarBloque unBloque) unaCantidad
 
 iterarBloque unBloque = unBloque ++ [concat (replicate 2 (last unBloque))]
+
+testearTodo = do
+    testeoDeEventos
+    testeoDeUsuarios
+    testeoDeTransacciones
+    testeoLuegoDeTransaccion
+    testeoDeBloque1
+    testeoDeBlockChain
+    testeoDeBlockChainInfinito
