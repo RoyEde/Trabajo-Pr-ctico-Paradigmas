@@ -144,7 +144,8 @@ blockChain = bloque2 : take 10 (repeat bloque1)
 
 muchosBloques unUsuario bloques = foldr (\bloque unUsuario  -> unBloque unUsuario bloque) unUsuario bloques
 
-buscarHistorial numeroBloque unUsuario = muchosBloques unUsuario (take numeroBloque blockChain)
+buscarHistorial numeroBloque unUsuario | numeroBloque < length blockChain = muchosBloques unUsuario (take numeroBloque blockChain)
+                                       | otherwise = muchosBloques unUsuario blockChain
 
 testeoDeBlockChain = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar blockChain" $ do
@@ -155,11 +156,13 @@ testeoDeBlockChain = hspec $ do
 
 blockChainInfinito = cycle bloque1
 
-testeoDeBlockChainInfinito = hspec $ do
+{-testeoDeBlockChainInfinito = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
     --it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $ aplicarBlockChainInfinito pepe blockChainInfinito 10000 `shouldBe` 11
 
-aplicarBlockChainInfinito unUsuario unBloque unaCantidad |dinero(billetera(aplicarBlockChain unUsuario unBloque)) >= unaCantidad = length unBloque
-                                                         |otherwise = aplicarBlockChainInfinito unUsuario (iterarBloque unBloque) unaCantidad
+aplicarBlockChainInfinito unUsuario unBloque unaCantidad | dinero(billetera(aplicarBlockChain unUsuario unBloque)) >= unaCantidad = length unBloque
+                                                         | otherwise = aplicarBlockChainInfinito unUsuario (iterarBloque unBloque) unaCantidad
 
 iterarBloque unBloque = unBloque ++ [concat (replicate 2 (last unBloque))]
+
+-}
