@@ -147,14 +147,16 @@ muchosBloques unUsuario bloques = foldr (\bloque unUsuario  -> unBloque unUsuari
 buscarHistorial numeroBloque unUsuario | numeroBloque < length blockChain = muchosBloques unUsuario (take numeroBloque blockChain)
                                        | otherwise = muchosBloques unUsuario blockChain
 
+peorBloque unUsuario bloque otroBloque | (dinero.billetera.unBloque usuario) bloque > (dinero.billetera.unBloque usuario) otroBloque = bloque
+                                       | otherwise = otroBloque
+
 testeoDeBlockChain = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar blockChain" $ do
-    it "El peor bloque para pepe es el bloque 1" $ (dinero.billetera.unBloque pepe) bloque1 < (dinero.billetera.unBloque pepe) bloque2 `shouldBe` True
-    it "blockChain aplicada a pepe nos devuelve a pepe con una billetera de 115" $ muchosBloques pepe blockChain `shouldBe` actualizarBilletera pepe (Billetera 115)
-    it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $ buscarHistorial 3 pepe `shouldBe` actualizarBilletera pepe (Billetera 51)
-    it "Si aplico blockChain a lucho y a pepe la suma de sus billeteras nos deberia dar 115" $ (dinero.billetera.muchosBloques pepe) blockChain + (dinero.billetera.muchosBloques lucho) blockChain  `shouldBe` 115
+    {-25-} it "El peor bloque para pepe es el bloque 1" $ unBloque pepe (peorBloque pepe bloque1 bloque2) `shouldBe` actualizarBilletera pepe (Billetera 18)
+    {-26-} it "blockChain aplicada a pepe nos devuelve a pepe con una billetera de 115" $ muchosBloques pepe blockChain `shouldBe` actualizarBilletera pepe (Billetera 115)
+    {-27-} it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $ buscarHistorial 3 pepe `shouldBe` actualizarBilletera pepe (Billetera 51)
+    {-28-} it "Si aplico blockChain a lucho y a pepe la suma de sus billeteras nos deberia dar 115" $ (dinero.billetera.muchosBloques pepe) blockChain + (dinero.billetera.muchosBloques lucho) blockChain  `shouldBe` 115
 
-blockChainInfinito = cycle bloque1
 
 {-testeoDeBlockChainInfinito = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
