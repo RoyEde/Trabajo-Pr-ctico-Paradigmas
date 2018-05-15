@@ -147,7 +147,7 @@ muchosBloques unUsuario bloques = foldr (\bloque unUsuario  -> unBloque unUsuari
 buscarHistorial numeroBloque unUsuario | numeroBloque < length blockChain = muchosBloques unUsuario (take numeroBloque blockChain)
                                        | otherwise = muchosBloques unUsuario blockChain
 
-peorBloque unUsuario bloque otroBloque | (dinero.billetera.unBloque usuario) bloque > (dinero.billetera.unBloque usuario) otroBloque = bloque
+peorBloque unUsuario bloque otroBloque | (dinero.billetera.unBloque unUsuario) bloque > (dinero.billetera.unBloque unUsuario) otroBloque = bloque
                                        | otherwise = otroBloque
 
 testeoDeBlockChain = hspec $ do
@@ -159,7 +159,7 @@ testeoDeBlockChain = hspec $ do
 
 testeoDeBlockChainInfinito = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
-    --it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $ aplicarBlockChainInfinito pepe blockChainInfinito 10000 `shouldBe` 11
+    it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $ aplicarBlockChainInfinito pepe [bloque1] 10000 `shouldBe` 11
 
 aplicarBlockChainInfinito unUsuario unBloque unaCantidad | dinero(billetera(muchosBloques unUsuario unBloque)) >= unaCantidad = length unBloque
                                                          | otherwise = aplicarBlockChainInfinito unUsuario (iterarBloque unBloque) unaCantidad
