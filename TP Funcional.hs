@@ -142,7 +142,7 @@ bloque2 = take 5 (repeat transaccion2)
 
 blockChain = bloque2 : take 10 (repeat bloque1)
 
-muchosBloques unUsuario bloques = foldr (\bloque unUsuario  -> unBloque pepe bloque) unUsuario bloques 
+muchosBloques unUsuario bloques = foldr (\bloque unUsuario  -> unBloque unUsuario bloque) unUsuario bloques 
 
 testeoDeBlockChain = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar blockChain" $ do
