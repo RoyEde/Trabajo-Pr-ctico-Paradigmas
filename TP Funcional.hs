@@ -126,7 +126,7 @@ bloque1 = [transaccion1, transaccion2, transaccion2, transaccion2, transaccion3,
 
 testeoDeBloque1 = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el bloque1" $ do
-  {-21-} it "Aplicar bloque 1 a pepe nos devuelve un pepe con una billetera de 18" $ (unBloque pepe) bloque1 `shouldBe` cambiarBilletera 18 pepe
+  {-21-} it "Aplicar bloque 1 a pepe nos devuelve un pepe con una billetera de 18" $ (unBloque pepe) bloque1 `shouldBe` actualizarBilletera pepe (Billetera 18)
   {-22-} it "Si aplico el bloque 1 a pepe y a lucho el unico que queda con una billetera >10 es pepe" $ (dinero.billetera.unBloque pepe) bloque1 > 10 && (dinero.billetera.unBloque lucho) bloque1 < 10 `shouldBe` True
   {-23-} it "El mas adinerado luego de aplicar el bloque 1 deberia ser pepe" $ (dinero.billetera.unBloque pepe) bloque1 > (dinero.billetera.unBloque lucho) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
   {-24-} it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $ (dinero.billetera.unBloque lucho) bloque1 < (dinero.billetera.unBloque pepe) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
