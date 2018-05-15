@@ -116,9 +116,9 @@ actualizarBilletera unUsuario nuevaBilletera = unUsuario {billetera = nuevaBille
 
 testeoLuegoDeTransaccion = hspec $ do
   describe "Testeos sobre usuarios luego de transacciones" $ do
-  {-18-} it "Aplicar transaccion 1 a pepe deberia dejarlo igual" $ usuarioLuegoDeTransaccion pepe transaccion1  `shouldBe` pepe
-  {-19-} it "Aplicar transaccion 5 a lucho deberia devolverlo con una billetera de 9" $ usuarioLuegoDeTransaccion lucho transaccion5 `shouldBe` cambiarBilletera 9 lucho
-  {-20-} it "Aplicar la transaccion 5 y la 2 a pepe deberia devolverlo con una billetera de 8" $ usuarioLuegoDeTransaccion (usuarioLuegoDeTransaccion pepe transaccion5) transaccion2 `shouldBe` cambiarBilletera 8 pepe
+  {-18-} it "Aplicar transaccion 1 a pepe deberia dejarlo igual" $ usuarioLuegoDeTransaccion pepe transaccion1  `shouldBe` actualizarBilletera pepe (Billetera 8)
+  {-19-} it "Aplicar transaccion 5 a lucho deberia devolverlo con una billetera de 9" $ usuarioLuegoDeTransaccion lucho transaccion5 `shouldBe` actualizarBilletera lucho (Billetera 9)
+  {-20-} it "Aplicar la transaccion 5 y la 2 a pepe deberia devolverlo con una billetera de 8" $ usuarioLuegoDeTransaccion (usuarioLuegoDeTransaccion pepe transaccion5) transaccion2 `shouldBe` actualizarBilletera pepe (Billetera 8)
 
 unBloque unUsuario transacciones = foldl (\unUsuario transaccion -> usuarioLuegoDeTransaccion unUsuario transaccion) unUsuario transacciones
 
