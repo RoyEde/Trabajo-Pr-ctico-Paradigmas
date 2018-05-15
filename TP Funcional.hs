@@ -118,21 +118,22 @@ bloque1 = [transaccion1, transaccion2, transaccion2, transaccion2, transaccion3,
 
 testeoDeBloque1 = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el bloque1" $ do
-    it "Aplicar bloque 1 a pepe nos devuelve un pepe con una billetera de 18" $ (dinero.billetera.unBloque pepe) bloque1 `shouldBe` 18
+    it "Aplicar bloque 1 a pepe nos devuelve un pepe con una billetera de 18" $ (unBloque pepe) bloque1 `shouldBe` Usuario "Jose" (Billetera 18)
     it "Si aplico el bloque 1 a pepe y a lucho el unico que queda con una billetera >10 es pepe" $ (dinero.billetera.unBloque pepe) bloque1 > 10 && (dinero.billetera.unBloque lucho) bloque1 < 10 `shouldBe` True
     it "El mas adinerado luego de aplicar el bloque 1 deberia ser pepe" $ (dinero.billetera.unBloque pepe) bloque1 > (dinero.billetera.unBloque lucho) bloque1 `shouldBe` True
     it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $ (dinero.billetera.unBloque lucho) bloque1 < (dinero.billetera.unBloque pepe) bloque1 `shouldBe` True
 
-bloque2 = [transaccion2, transaccion2, transaccion2, transaccion2, transaccion2]
+-- bloque2 = replicate 5 transaccion2 No se vio en clase
+bloque2 = take 5 (repeat transaccion2) -- visto en clase
 
-blockChain = bloque2 ++ (take 10. cycle) bloque1
+blockChain = bloque2 ++ concat (take 10 (repeat bloque1))
 
 testeoDeBlockChain = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar blockChain" $ do
     it "El peor bloque para pepe es el bloque 1" $ (dinero.billetera.unBloque pepe) bloque1 < (dinero.billetera.unBloque pepe) bloque2 `shouldBe` True
-{-    it "blockChain aplicada a pepe nos devuelve a pepe con una billetera de 115" $
-    it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $
-    it "Si aplico blockChain a lucho y a pepe la suma de sus billeteras nos deberia dar 115" $-}
+    it "blockChain aplicada a pepe nos devuelve a pepe con una billetera de 115" $ unBloque pepe blockChain `shouldBe` Usuario "Jose" (Billetera 115)
+    -- it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $ unBloque pepe (take 3 blockChain) `shouldBe` Usuario "Jose" (Billetera 51)
+    it "Si aplico blockChain a lucho y a pepe la suma de sus billeteras nos deberia dar 115" $ (dinero.billetera.unBloque pepe) blockChain + (dinero.billetera.unBloque lucho) blockChain  `shouldBe` 115
 
 blockChainInfinito = cycle bloque1
 
