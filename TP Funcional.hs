@@ -4,16 +4,12 @@ import Data.List
 import Data.Maybe
 import Test.Hspec
 
-data Billetera = Billetera {
-  dinero :: Float
-} deriving(Show, Eq)
+type Billetera = Float
 
-cambiarBilletera :: Float -> Billetera -> Billetera
 aumentarBilletera :: Float -> Billetera -> Billetera
 disminuirBilletera :: Float -> Billetera -> Billetera
 
-cambiarBilletera nuevaBilletera unaBilletera = unaBilletera {dinero = nuevaBilletera}
-aumentarBilletera unaCantidad unaBilletera = cambiarBilletera ((dinero unaBilletera) + unaCantidad) unaBilletera
+aumentarBilletera unaCantidad unaBilletera = unaBilletera + unaCantidad
 disminuirBilletera unaCantidad unaBilletera = aumentarBilletera (unaCantidad * (-1)) unaBilletera
 
 -- Eventos
@@ -27,9 +23,9 @@ cierreDeCuenta :: Evento
 quedaIgual :: Evento
 
 deposito unaCantidad  = aumentarBilletera unaCantidad
-extraccion unaCantidad unaBilletera = disminuirBilletera (min unaCantidad (dinero unaBilletera)) unaBilletera
-upgrade unaBilletera = aumentarBilletera (min 10 (dinero unaBilletera * 0.2)) unaBilletera
-cierreDeCuenta = cambiarBilletera 0
+extraccion unaCantidad unaBilletera = disminuirBilletera (min unaCantidad  unaBilletera)
+upgrade unaBilletera = aumentarBilletera (min 10 (unaBilletera * 0.2)) unaBilletera
+cierreDeCuenta = 0
 quedaIgual = id
 
 billeteraTest = Billetera 10
@@ -38,13 +34,13 @@ billeteraTest3 = Billetera 50
 
 testeoDeEventos = hspec $ do
   describe "Tests de eventos" $ do
-    {-1-} it "depositar 10 en una billetera , deberia tener 20 en su billetera" $ (dinero.deposito 10) billeteraTest `shouldBe` 20
-    {-2-} it "extraigo 3 de una billetera , debería quedar con 7" $ (dinero.extraccion 3) billeteraTest `shouldBe` 7
-    {-3-} it "extraigo 15 de una billetera , deberia quedar con 0" $ (dinero.extraccion 15) billeteraTest `shouldBe` 0
-    {-4-} it "hago un upgrade de una billetera , deberia quedar con 12" $ (dinero.upgrade) billeteraTest `shouldBe` 12
-    {-5-} it "cierro la cuenta, billetera deberia quedar en 0" $ (dinero.cierreDeCuenta) billeteraTest `shouldBe` 0
-    {-6-} it "hago un quedaIgual, billetera deberia quedar en 10" $ (dinero.quedaIgual) billeteraTest `shouldBe` 10
-    {-7-} it "deposito y hago un upgrade, billetera deberia quedar en 1020" $ (dinero.upgrade.deposito 1000) billeteraTest `shouldBe` 1020
+    {-1-} it "depositar 10 en una billetera , deberia tener 20 en su billetera" $ (deposito 10) billeteraTest `shouldBe` 20
+    {-2-} it "extraigo 3 de una billetera , debería quedar con 7" $ (extraccion 3) billeteraTest `shouldBe` 7
+    {-3-} it "extraigo 15 de una billetera , deberia quedar con 0" $ (extraccion 15) billeteraTest `shouldBe` 0
+    {-4-} it "hago un upgrade de una billetera , deberia quedar con 12" $ upgrade billeteraTest `shouldBe` 12
+    {-5-} it "cierro la cuenta, billetera deberia quedar en 0" $ cierreDeCuenta billeteraTest `shouldBe` 0
+    {-6-} it "hago un quedaIgual, billetera deberia quedar en 10" $ quedaIgual billeteraTest `shouldBe` 10
+    {-7-} it "deposito y hago un upgrade, billetera deberia quedar en 1020" $ (upgrade.deposito 1000) billeteraTest `shouldBe` 1020
 
 -- Usuarios
 
@@ -53,15 +49,15 @@ data Usuario = Usuario {
   billetera::Billetera
   } deriving (Show, Eq)
 
-pepe = Usuario "Jose" (Billetera 10)
-pepe2 = Usuario "Jose" (Billetera 20)
-lucho = Usuario "Luciano" (Billetera 2)
+pepe = Usuario "Jose" 10
+pepe2 = Usuario "Jose" 20
+lucho = Usuario "Luciano" 2
 
 testeoDeUsuarios = hspec $ do
   describe "Tests de usuarios" $ do
-    {-8-} it "billetera pepe, deberia ser 10" $ (dinero.billetera) pepe `shouldBe` 10
-    {-9-} it "billetera pepe luego de cierre de cuenta, deberia ser 0" $ (dinero.cierreDeCuenta.billetera) pepe `shouldBe` 0
-   {-10-} it "billetera de pepe luego de depositar 15, extraer 2 y tener un upgrade deberia ser 27.6" $ (dinero.upgrade.extraccion 2.deposito 15.billetera) pepe `shouldBe` 27.6
+    {-8-} it "billetera pepe, deberia ser 10" $ billetera pepe `shouldBe` 10
+    {-9-} it "billetera pepe luego de cierre de cuenta, deberia ser 0" $ cierreDeCuenta.billetera pepe `shouldBe` 0
+   {-10-} it "billetera de pepe luego de depositar 15, extraer 2 y tener un upgrade deberia ser 27.6" $ (upgrade.extraccion 2.deposito 15.billetera) pepe `shouldBe` 27.6
 
 -- Transacciones
 
@@ -96,29 +92,29 @@ transaccion5 unUsuario | nombre unUsuario == "Jose" = extraccion 7
 
 testeoDeTransacciones = hspec $ do
   describe "Tests de transacciones" $ do
-  {-11-} it "transaccion 1 sobre pepe a una billetera de 20 monedas me debería devolver una billetera de 20" $ dinero (transaccion1 pepe billeteraTest2) `shouldBe` 20
-  {-12-} it "transaccion 2 sobre pepe a una billetera de 10 monedas me debería devolver una billetera de 15" $ dinero (transaccion2 pepe billeteraTest) `shouldBe` 15
-  {-13-} it "transaccion 2 sobre pepe2 a una billetera de 50 monedas me debería devolver billetera de 55" $ dinero (transaccion2 pepe2 billeteraTest3) `shouldBe` 55
+  {-11-} it "transaccion 1 sobre pepe a una billetera de 20 monedas me debería devolver una billetera de 20" $ transaccion1 pepe billeteraTest2 `shouldBe` 20
+  {-12-} it "transaccion 2 sobre pepe a una billetera de 10 monedas me debería devolver una billetera de 15" $ transaccion2 pepe billeteraTest `shouldBe` 15
+  {-13-} it "transaccion 2 sobre pepe2 a una billetera de 50 monedas me debería devolver billetera de 55" $ transaccion2 pepe2 billeteraTest3 `shouldBe` 55
 -- Nuevos Eventos
   describe "Tests de nuevos eventos" $ do
-  {-14-} it "transaccion 3 sobre lucho a una billetera de 10 monedas me debería devolver una billetera de 0" $ dinero (transaccion3 lucho billeteraTest) `shouldBe` 0
-  {-15-} it "transaccion 4 sobre lucho a una billetera de 10 monedas me debería devolver una billetera de 34" $ dinero (transaccion4 lucho billeteraTest) `shouldBe` 34
+  {-14-} it "transaccion 3 sobre lucho a una billetera de 10 monedas me debería devolver una billetera de 0" $ transaccion3 lucho billeteraTest `shouldBe` 0
+  {-15-} it "transaccion 4 sobre lucho a una billetera de 10 monedas me debería devolver una billetera de 34" $ transaccion4 lucho billeteraTest `shouldBe` 34
 -- Pagos entre Usuarios
   describe "Tests de pagos entre usuarios" $ do
-  {-16-} it "transaccion 5 sobre pepe  a una billetera de 10 monedas me debería devolver una billetera de 3" $ dinero (transaccion5 pepe billeteraTest) `shouldBe` 3
-  {-17-} it "transaccion 5 sobre lucho  a una billetera de 10 monedas me debería devolver una billetera de 17" $ dinero (transaccion5 lucho billeteraTest) `shouldBe` 17
+  {-16-} it "transaccion 5 sobre pepe  a una billetera de 10 monedas me debería devolver una billetera de 3" $ transaccion5 pepe billeteraTest `shouldBe` 3
+  {-17-} it "transaccion 5 sobre lucho  a una billetera de 10 monedas me debería devolver una billetera de 17" $ transaccion5 lucho billeteraTest `shouldBe` 17
 
 -- Usuario luego de transacción
 
-usuarioLuegoDeTransaccion unUsuario unaTransaccion = actualizarBilletera unUsuario (unaTransaccion unUsuario (billetera unUsuario))
-
 actualizarBilletera unUsuario nuevaBilletera = unUsuario {billetera = nuevaBilletera}
+
+usuarioLuegoDeTransaccion unUsuario unaTransaccion = actualizarBilletera unUsuario (unaTransaccion unUsuario (billetera unUsuario))
 
 testeoLuegoDeTransaccion = hspec $ do
   describe "Testeos sobre usuarios luego de transacciones" $ do
   {-18-} it "Aplicar transaccion 1 a pepe deberia dejarlo igual" $ usuarioLuegoDeTransaccion pepe transaccion1 `shouldBe` pepe
-  {-19-} it "Aplicar transaccion 5 a lucho deberia devolverlo con una billetera de 9" $ usuarioLuegoDeTransaccion lucho transaccion5 `shouldBe` actualizarBilletera lucho (Billetera 9)
-  {-20-} it "Aplicar la transaccion 5 y la 2 a pepe deberia devolverlo con una billetera de 8" $ usuarioLuegoDeTransaccion (usuarioLuegoDeTransaccion pepe transaccion5) transaccion2 `shouldBe` actualizarBilletera pepe (Billetera 8)
+  {-19-} it "Aplicar transaccion 5 a lucho deberia devolverlo con una billetera de 9" $ usuarioLuegoDeTransaccion lucho transaccion5 `shouldBe` actualizarBilletera lucho 9
+  {-20-} it "Aplicar la transaccion 5 y la 2 a pepe deberia devolverlo con una billetera de 8" $ usuarioLuegoDeTransaccion (usuarioLuegoDeTransaccion pepe transaccion5) transaccion2 `shouldBe` actualizarBilletera pepe 8
 
 type Bloque = [Transaccion]
 
@@ -130,10 +126,10 @@ unBloque unUsuario transacciones = foldl (\unUsuario transaccion -> usuarioLuego
 
 testeoDeBloque1 = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el bloque1" $ do
-  {-21-} it "Aplicar bloque 1 a pepe nos devuelve un pepe con una billetera de 18" $ (unBloque pepe) bloque1 `shouldBe` actualizarBilletera pepe (Billetera 18)
-  {-22-} it "Si aplico el bloque 1 a pepe y a lucho el unico que queda con una billetera >10 es pepe" $ (dinero.billetera.unBloque pepe) bloque1 > 10 && (dinero.billetera.unBloque lucho) bloque1 < 10 `shouldBe` True
-  {-23-} it "El mas adinerado luego de aplicar el bloque 1 deberia ser pepe" $ (dinero.billetera.unBloque pepe) bloque1 > (dinero.billetera.unBloque lucho) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
-  {-24-} it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $ (dinero.billetera.unBloque lucho) bloque1 < (dinero.billetera.unBloque pepe) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
+  {-21-} it "Aplicar bloque 1 a pepe nos devuelve un pepe con una billetera de 18" $ (unBloque pepe) bloque1 `shouldBe` actualizarBilletera pepe 18
+  {-22-} it "Si aplico el bloque 1 a pepe y a lucho el unico que queda con una billetera >10 es pepe" $ (billetera.unBloque pepe) bloque1 > 10 && (billetera.unBloque lucho) bloque1 < 10 `shouldBe` True
+  {-23-} it "El mas adinerado luego de aplicar el bloque 1 deberia ser pepe" $ (billetera.unBloque pepe) bloque1 > (billetera.unBloque lucho) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
+  {-24-} it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $ (billetera.unBloque lucho) bloque1 < (billetera.unBloque pepe) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
 
 bloque2 :: Bloque
 
@@ -146,17 +142,17 @@ muchosBloques unUsuario bloques = foldr (\bloque unUsuario  -> unBloque unUsuari
 buscarHistorial numeroBloque unUsuario | numeroBloque < length blockChain = muchosBloques unUsuario (take numeroBloque blockChain)
                                        | otherwise = muchosBloques unUsuario blockChain
 
-peorBloque unUsuario bloque otroBloque | (dinero.billetera.unBloque unUsuario) bloque < (dinero.billetera.unBloque unUsuario) otroBloque = bloque
+peorBloque unUsuario bloque otroBloque | (billetera.unBloque unUsuario) bloque < (billetera.unBloque unUsuario) otroBloque = bloque
                                        | otherwise = otroBloque
 
 -- Blockchain
 
 testeoDeBlockChain = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar blockChain" $ do
-    {-25-} it "El peor bloque para pepe es el bloque 1" $ unBloque pepe (peorBloque pepe bloque1 bloque2) `shouldBe` actualizarBilletera pepe (Billetera 18)
-    {-26-} it "blockChain aplicada a pepe nos devuelve a pepe con una billetera de 115" $ muchosBloques pepe blockChain `shouldBe` actualizarBilletera pepe (Billetera 115)
-    {-27-} it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $ buscarHistorial 3 pepe `shouldBe` actualizarBilletera pepe (Billetera 51)
-    {-28-} it "Si aplico blockChain a lucho y a pepe la suma de sus billeteras nos deberia dar 115" $ (dinero.billetera.muchosBloques pepe) blockChain + (dinero.billetera.muchosBloques lucho) blockChain  `shouldBe` 115
+    {-25-} it "El peor bloque para pepe es el bloque 1" $ unBloque pepe (peorBloque pepe bloque1 bloque2) `shouldBe` actualizarBilletera pepe 18
+    {-26-} it "blockChain aplicada a pepe nos devuelve a pepe con una billetera de 115" $ muchosBloques pepe blockChain `shouldBe` actualizarBilletera pepe 115
+    {-27-} it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $ buscarHistorial 3 pepe `shouldBe` actualizarBilletera pepe 51
+    {-28-} it "Si aplico blockChain a lucho y a pepe la suma de sus billeteras nos deberia dar 115" $ (billetera.muchosBloques pepe) blockChain + (billetera.muchosBloques lucho) blockChain `shouldBe` 115
 
 testeoDeBlockChainInfinito = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
