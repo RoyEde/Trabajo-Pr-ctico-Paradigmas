@@ -23,14 +23,18 @@ cierreDeCuenta :: Evento
 quedaIgual :: Evento
 
 deposito unaCantidad  = aumentarBilletera unaCantidad
-extraccion unaCantidad unaBilletera = disminuirBilletera (min unaCantidad  unaBilletera)
+extraccion unaCantidad unaBilletera = disminuirBilletera (min unaCantidad  unaBilletera) unaBilletera
 upgrade unaBilletera = aumentarBilletera (min 10 (unaBilletera * 0.2)) unaBilletera
-cierreDeCuenta = 0
+cierreDeCuenta _ = 0
 quedaIgual = id
 
-billeteraTest = Billetera 10
-billeteraTest2 = Billetera 20
-billeteraTest3 = Billetera 50
+billeteraTest :: Billetera
+billeteraTest2 :: Billetera
+billeteraTest3 :: Billetera
+
+billeteraTest = 10
+billeteraTest2 = 20
+billeteraTest3 = 50
 
 testeoDeEventos = hspec $ do
   describe "Tests de eventos" $ do
@@ -56,7 +60,7 @@ lucho = Usuario "Luciano" 2
 testeoDeUsuarios = hspec $ do
   describe "Tests de usuarios" $ do
     {-8-} it "billetera pepe, deberia ser 10" $ billetera pepe `shouldBe` 10
-    {-9-} it "billetera pepe luego de cierre de cuenta, deberia ser 0" $ cierreDeCuenta.billetera pepe `shouldBe` 0
+    {-9-} it "billetera pepe luego de cierre de cuenta, deberia ser 0" $ cierreDeCuenta (billetera pepe) `shouldBe` 0
    {-10-} it "billetera de pepe luego de depositar 15, extraer 2 y tener un upgrade deberia ser 27.6" $ (upgrade.extraccion 2.deposito 15.billetera) pepe `shouldBe` 27.6
 
 -- Transacciones
@@ -158,7 +162,7 @@ testeoDeBlockChainInfinito = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
     {-29-} it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $ aplicarBlockChainInfinito pepe [bloque1] 10000 `shouldBe` 11
 
-aplicarBlockChainInfinito unUsuario unBloque unaCantidad | dinero(billetera(muchosBloques unUsuario unBloque)) >= unaCantidad = length unBloque
+aplicarBlockChainInfinito unUsuario unBloque unaCantidad | billetera(muchosBloques unUsuario unBloque) >= unaCantidad = length unBloque
                                                          | otherwise = aplicarBlockChainInfinito unUsuario (iterarBloque unBloque) unaCantidad
 
 iterarBloque unBloque = unBloque ++ [concat (replicate 2 (last unBloque))]
