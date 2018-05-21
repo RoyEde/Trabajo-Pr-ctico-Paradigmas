@@ -72,27 +72,25 @@ tocoYmeVoy = (cierreDeCuenta.upgrade).deposito 15
 ahorranteErrante = deposito 10.upgrade.deposito 8.extraccion 1.deposito 2.deposito 1
 
 type Transaccion = Usuario -> Evento
+unaTransaccion :: String -> Evento -> Transaccion
 transaccion1 :: Transaccion
 transaccion2 :: Transaccion
 transaccion3 :: Transaccion
 transaccion4 :: Transaccion
 transaccion5 :: Transaccion
 
-transaccion1 unUsuario | nombre unUsuario == "Luciano" = cierreDeCuenta
-                       | otherwise = quedaIgual
+generarTransaccion unNombre unEvento unUsuario | nombre unUsuario == unNombre = unEvento
+                                           | otherwise = quedaIgual
 
-transaccion2 unUsuario | nombre unUsuario == "Jose" = deposito 5
-                       | otherwise = quedaIgual
+transaccion1 = generarTransaccion "Luciano" cierreDeCuenta
 
-transaccion3 unUsuario | nombre unUsuario == "Luciano" = tocoYmeVoy
-                       | otherwise = quedaIgual
+transaccion2 = generarTransaccion "Jose" (deposito 5)
 
-transaccion4 unUsuario | nombre unUsuario == "Luciano" = ahorranteErrante
-                       | otherwise = quedaIgual
+transaccion3 = generarTransaccion "Luciano" tocoYmeVoy
 
-transaccion5 unUsuario | nombre unUsuario == "Jose" = extraccion 7
-                       | nombre unUsuario == "Luciano" = deposito 7
-                       | otherwise = quedaIgual
+transaccion4 = generarTransaccion "Luciano" ahorranteErrante
+
+transaccion5 = generarTransaccion "Jose" (extraccion 7).generarTransaccion "Luciano" (deposito 7)
 
 testeoDeTransacciones = hspec $ do
   describe "Tests de transacciones" $ do
