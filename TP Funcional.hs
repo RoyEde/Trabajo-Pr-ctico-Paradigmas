@@ -110,7 +110,7 @@ testeoDeTransacciones = hspec $ do
 
 actualizarBilletera unUsuario nuevaBilletera = unUsuario {billetera = nuevaBilletera}
 
-usuarioLuegoDeTransaccion unUsuario unaTransaccion = (actualizarBilletera unUsuario).(unaTransaccion unUsuario) (billetera unUsuario)
+usuarioLuegoDeTransaccion unUsuario unaTransaccion = ((actualizarBilletera unUsuario).(unaTransaccion unUsuario)) (billetera unUsuario)
 
 testeoLuegoDeTransaccion = hspec $ do
   describe "Testeos sobre usuarios luego de transacciones" $ do
