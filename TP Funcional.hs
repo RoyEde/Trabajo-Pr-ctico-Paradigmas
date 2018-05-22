@@ -80,7 +80,7 @@ transaccion4 :: Transaccion
 transaccion5 :: Transaccion
 
 generarTransaccion unNombre unEvento unUsuario | nombre unUsuario == unNombre = unEvento
-                                                     | otherwise = quedaIgual
+                                               | otherwise = quedaIgual
 
 transaccion1 = generarTransaccion "Luciano" cierreDeCuenta
 
@@ -110,7 +110,7 @@ testeoDeTransacciones = hspec $ do
 
 actualizarBilletera unUsuario nuevaBilletera = unUsuario {billetera = nuevaBilletera}
 
-usuarioLuegoDeTransaccion unUsuario unaTransaccion = actualizarBilletera unUsuario (unaTransaccion unUsuario (billetera unUsuario))
+usuarioLuegoDeTransaccion unUsuario unaTransaccion = (actualizarBilletera unUsuario).(unaTransaccion unUsuario) (billetera unUsuario)
 
 testeoLuegoDeTransaccion = hspec $ do
   describe "Testeos sobre usuarios luego de transacciones" $ do
@@ -124,14 +124,14 @@ bloque1 :: Bloque
 
 bloque1 = [transaccion1, transaccion2, transaccion2, transaccion2, transaccion3, transaccion4, transaccion5, transaccion3]
 
-unBloque unUsuario transacciones = foldl (\unUsuario transaccion -> usuarioLuegoDeTransaccion unUsuario transaccion) unUsuario transacciones
+leerBloque unUsuario = foldl (\unUsuario transaccion -> usuarioLuegoDeTransaccion unUsuario transaccion) unUsuario
 
 testeoDeBloque1 = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el bloque1" $ do
-  {-21-} it "Aplicar bloque 1 a pepe nos devuelve un pepe con una billetera de 18" $ (unBloque pepe) bloque1 `shouldBe` actualizarBilletera pepe 18
-  {-22-} it "Si aplico el bloque 1 a pepe y a lucho el unico que queda con una billetera >10 es pepe" $ (billetera.unBloque pepe) bloque1 > 10 && (billetera.unBloque lucho) bloque1 < 10 `shouldBe` True
-  {-23-} it "El mas adinerado luego de aplicar el bloque 1 deberia ser pepe" $ (billetera.unBloque pepe) bloque1 > (billetera.unBloque lucho) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
-  {-24-} it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $ (billetera.unBloque lucho) bloque1 < (billetera.unBloque pepe) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
+  {-21-} it "Aplicar bloque 1 a pepe nos devuelve un pepe con una billetera de 18" $ (leerBloque pepe) bloque1 `shouldBe` actualizarBilletera pepe 18
+  {-22-} it "Si aplico el bloque 1 a pepe y a lucho el unico que queda con una billetera >10 es pepe" $ (billetera.leerBloque pepe) bloque1 > 10 && (billetera.leerBloque lucho) bloque1 < 10 `shouldBe` True
+  {-23-} it "El mas adinerado luego de aplicar el bloque 1 deberia ser pepe" $ (billetera.leerBloque pepe) bloque1 > (billetera.leerBloque lucho) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
+  {-24-} it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $ (billetera.leerBloque lucho) bloque1 < (billetera.leerBloque pepe) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
 
 bloque2 :: Bloque
 
@@ -139,19 +139,19 @@ bloque2 = take 5 (repeat transaccion2)
 
 blockChain = bloque2 : take 10 (repeat bloque1)
 
-muchosBloques unUsuario bloques = foldr (\bloque unUsuario  -> unBloque unUsuario bloque) unUsuario bloques
+muchosBloques unUsuario bloques = foldr (\bloque unUsuario  -> leerBloque unUsuario bloque) unUsuario bloques
 
 buscarHistorial numeroBloque unUsuario | numeroBloque < length blockChain = muchosBloques unUsuario (take numeroBloque blockChain)
                                        | otherwise = muchosBloques unUsuario blockChain
 
-peorBloque unUsuario bloque otroBloque | (billetera.unBloque unUsuario) bloque < (billetera.unBloque unUsuario) otroBloque = bloque
+peorBloque unUsuario bloque otroBloque | (billetera.leerBloque unUsuario) bloque < (billetera.leerBloque unUsuario) otroBloque = bloque
                                        | otherwise = otroBloque
 
 -- Blockchain
 
 testeoDeBlockChain = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar blockChain" $ do
-    {-25-} it "El peor bloque para pepe es el bloque 1" $ unBloque pepe (peorBloque pepe bloque1 bloque2) `shouldBe` actualizarBilletera pepe 18
+    {-25-} it "El peor bloque para pepe es el bloque 1" $ leerBloque pepe (peorBloque pepe bloque1 bloque2) `shouldBe` actualizarBilletera pepe 18
     {-26-} it "blockChain aplicada a pepe nos devuelve a pepe con una billetera de 115" $ muchosBloques pepe blockChain `shouldBe` actualizarBilletera pepe 115
     {-27-} it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $ buscarHistorial 3 pepe `shouldBe` actualizarBilletera pepe 51
     {-28-} it "Si aplico blockChain a lucho y a pepe la suma de sus billeteras nos deberia dar 115" $ (billetera.muchosBloques pepe) blockChain + (billetera.muchosBloques lucho) blockChain `shouldBe` 115
