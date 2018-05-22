@@ -38,10 +38,10 @@ billeteraTest3 = 50
 
 testeoDeEventos = hspec $ do
   describe "Tests de eventos" $ do
-    {-1-} it "depositar 10 en una billetera , deberia tener 20 en su billetera" $ (deposito 10) billeteraTest `shouldBe` 20
-    {-2-} it "extraigo 3 de una billetera , debería quedar con 7" $ (extraccion 3) billeteraTest `shouldBe` 7
-    {-3-} it "extraigo 15 de una billetera , deberia quedar con 0" $ (extraccion 15) billeteraTest `shouldBe` 0
-    {-4-} it "hago un upgrade de una billetera , deberia quedar con 12" $ upgrade billeteraTest `shouldBe` 12
+    {-1-} it "depositar 10 en una billetera, deberia tener 20 en su billetera" $ (deposito 10) billeteraTest `shouldBe` 20
+    {-2-} it "extraigo 3 de una billetera, debería quedar con 7" $ (extraccion 3) billeteraTest `shouldBe` 7
+    {-3-} it "extraigo 15 de una billetera, deberia quedar con 0" $ (extraccion 15) billeteraTest `shouldBe` 0
+    {-4-} it "hago un upgrade de una billetera, deberia quedar con 12" $ upgrade billeteraTest `shouldBe` 12
     {-5-} it "cierro la cuenta, billetera deberia quedar en 0" $ cierreDeCuenta billeteraTest `shouldBe` 0
     {-6-} it "hago un quedaIgual, billetera deberia quedar en 10" $ quedaIgual billeteraTest `shouldBe` 10
     {-7-} it "deposito y hago un upgrade, billetera deberia quedar en 1020" $ (upgrade.deposito 1000) billeteraTest `shouldBe` 1020
@@ -126,12 +126,20 @@ bloque1 = [transaccion1, transaccion2, transaccion2, transaccion2, transaccion3,
 
 leerBloque unUsuario = foldl (\unUsuario transaccion -> usuarioLuegoDeTransaccion unUsuario transaccion) unUsuario
 
+economiaEntreUsuariosDespuesDe unBloque unCriterio unUsuario otroUsuario
+  | unCriterio ((billetera.leerBloque unUsuario) unBloque) ((billetera.leerBloque otroUsuario) unBloque) = unUsuario
+  | otherwise = otroUsuario
+
+masAdineradoDespuesDe unBloque unUsuario otroUsuario = economiaEntreUsuariosDespuesDe unBloque (>) unUsuario otroUsuario
+
+menosAdineradoDespuesDe unBloque unUsuario otroUsuario = economiaEntreUsuariosDespuesDe unBloque (<) unUsuario otroUsuario
+
 testeoDeBloque1 = hspec $ do
   describe "Testeos sobre usuarios luego de aplicar el bloque1" $ do
   {-21-} it "Aplicar bloque 1 a pepe nos devuelve un pepe con una billetera de 18" $ (leerBloque pepe) bloque1 `shouldBe` actualizarBilletera pepe 18
   {-22-} it "Si aplico el bloque 1 a pepe y a lucho el unico que queda con una billetera >10 es pepe" $ (billetera.leerBloque pepe) bloque1 > 10 && (billetera.leerBloque lucho) bloque1 < 10 `shouldBe` True
-  {-23-} it "El mas adinerado luego de aplicar el bloque 1 deberia ser pepe" $ (billetera.leerBloque pepe) bloque1 > (billetera.leerBloque lucho) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
-  {-24-} it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $ (billetera.leerBloque lucho) bloque1 < (billetera.leerBloque pepe) bloque1 `shouldBe` True -- REMPLAZAR CON FUNCIONES QUE HAGAN ESTO
+  {-23-} it "El mas adinerado luego de aplicar el bloque 1 deberia ser pepe" $ masAdineradoDespuesDe bloque1 pepe lucho `shouldBe` pepe
+  {-24-} it "El menos adinerado luego de aplicar el bloque 1 deberia ser lucho" $ menosAdineradoDespuesDe bloque1 pepe lucho `shouldBe` lucho
 
 bloque2 :: Bloque
 
@@ -141,8 +149,7 @@ blockChain = bloque2 : take 10 (repeat bloque1)
 
 muchosBloques unUsuario bloques = foldr (\bloque unUsuario  -> leerBloque unUsuario bloque) unUsuario bloques
 
-buscarHistorial numeroBloque unUsuario | numeroBloque < length blockChain = muchosBloques unUsuario (take numeroBloque blockChain)
-                                       | otherwise = muchosBloques unUsuario blockChain
+buscarHistorial numeroBloque unUsuario = muchosBloques unUsuario (take numeroBloque blockChain)
 
 peorBloque unUsuario bloque otroBloque | (billetera.leerBloque unUsuario) bloque < (billetera.leerBloque unUsuario) otroBloque = bloque
                                        | otherwise = otroBloque
@@ -156,12 +163,13 @@ testeoDeBlockChain = hspec $ do
     {-27-} it "Tomando los primeros 3 bloques del blockChain y aplicandoselo a pepe nos devuelve a pepe con una billetera de 51" $ buscarHistorial 3 pepe `shouldBe` actualizarBilletera pepe 51
     {-28-} it "Si aplico blockChain a lucho y a pepe la suma de sus billeteras nos deberia dar 115" $ (billetera.muchosBloques pepe) blockChain + (billetera.muchosBloques lucho) blockChain `shouldBe` 115
 
-testeoDeBlockChainInfinito = hspec $ do
-  describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
-    {-29-} it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $ aplicarBlockChainInfinito pepe [bloque1] 10000 `shouldBe` 11
 
 aplicarBlockChainInfinito unUsuario unBloque unaCantidad | billetera(muchosBloques unUsuario unBloque) >= unaCantidad = length unBloque
                                                          | otherwise = aplicarBlockChainInfinito unUsuario (iterarBloque unBloque) unaCantidad
+
+testeoDeBlockChainInfinito = hspec $ do
+  describe "Testeos sobre usuarios luego de aplicar el blockChain infinito" $ do
+    {-29-} it "Para que pepe llegue a 10000 creditos en su billetera, debo aplicar el bloque 1  11 veces" $ aplicarBlockChainInfinito pepe [bloque1] 10000 `shouldBe` 11
 
 iterarBloque unBloque = unBloque ++ [concat (replicate 2 (last unBloque))]
 
